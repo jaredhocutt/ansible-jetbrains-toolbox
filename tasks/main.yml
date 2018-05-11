@@ -12,7 +12,7 @@
 
 - name: Check if version is valid
   assert:
-    that: jetbrains_toolbox_version in jetbrains_toolbox_versions
+    that: (jetbrains_toolbox_version | string) in jetbrains_toolbox_versions
     msg: "The value of jetbrains_toolbox_version ({{ jetbrains_toolbox_version }}) is invalid. Available options are {{ jetbrains_toolbox_versions | join(', ') }}"
 
 - name: Check if JetBrains Toolbox is already installed
