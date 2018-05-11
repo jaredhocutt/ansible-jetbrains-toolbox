@@ -1,0 +1,13 @@
+galaxy_info:
+  author: Jared Hocutt
+  description: |
+    Installs JetBrains Toolbox
+
+  license: BSD
+
+  min_ansible_version: 2.3
+
+  platforms:
+  - name: Fedora
+    versions:
+    - 27

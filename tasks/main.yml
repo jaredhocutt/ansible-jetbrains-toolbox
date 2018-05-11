@@ -1,0 +1,53 @@
+---
+
+- name: Get available releases
+  uri:
+    url: https://data.services.jetbrains.com/products/releases?code=TBA&type=release
+    method: GET
+  register: jetbrains_toolbox_available_releases
+
+- name: Get versions
+  set_fact:
+    jetbrains_toolbox_versions: "{{ jetbrains_toolbox_available_releases.json.TBA | map(attribute='version') | list }}"
+
+- name: Check if version is valid
+  assert:
+    that: jetbrains_toolbox_version in jetbrains_toolbox_versions
+    msg: "The value of jetbrains_toolbox_version ({{ jetbrains_toolbox_version }}) is invalid. Available options are {{ jetbrains_toolbox_versions | join(', ') }}"
+
+- name: Check if JetBrains Toolbox is already installed
+  stat:
+    path: ~/.local/share/JetBrains/Toolbox
+  register: st_jetbrains_toolbox
+
+- block:
+    - name: Create temporary download directory
+      tempfile:
+        state: directory
+        suffix: ".jetbrains_toolbox_download"
+      register: jetbrains_toolbox_download_dir
+      changed_when: no
+
+    - name: Download JetBrains Toolbox
+      get_url:
+        url: "{{ jetbrains_toolbox_available_releases.json | json_query(jetbrains_toolbox_download_query) | first }}"
+        dest: "{{ jetbrains_toolbox_download_dir.path }}/jetbrains_toolbox.tar.gz"
+      vars:
+        jetbrains_toolbox_download_query: "TBA[?version == '{{ jetbrains_toolbox_version }}'].downloads.linux.link"
+
+    - name: Unpack install archive
+      unarchive:
+        src: "{{ jetbrains_toolbox_download_dir.path }}/jetbrains_toolbox.tar.gz"
+        dest: "{{ jetbrains_toolbox_download_dir.path }}"
+        list_files: yes
+      register: jetbrains_toolbox_unarchive
+
+    - name: Install JetBrains Toolbox
+      command: "{{ jetbrains_toolbox_download_dir.path }}/{{ jetbrains_toolbox_unarchive.files | first }}/jetbrains-toolbox --install"
+  when: st_jetbrains_toolbox.stat.exists == False
+  always:
+    - name: Delete temporary download directory
+      file:
+        path: "{{ jetbrains_toolbox_download_dir.path }}"
+        state: absent
+      changed_when: no
