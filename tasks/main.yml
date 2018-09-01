@@ -1,26 +1,26 @@
 ---
 
-- name: Get available releases
-  uri:
-    url: https://data.services.jetbrains.com/products/releases?code=TBA&type=release
-    method: GET
-  register: jetbrains_toolbox_available_releases
-
-- name: Get versions
-  set_fact:
-    jetbrains_toolbox_versions: "{{ jetbrains_toolbox_available_releases.json.TBA | map(attribute='version') | list }}"
-
-- name: Check if version is valid
-  assert:
-    that: (jetbrains_toolbox_version | string) in jetbrains_toolbox_versions
-    msg: "The value of jetbrains_toolbox_version ({{ jetbrains_toolbox_version }}) is invalid. Available options are {{ jetbrains_toolbox_versions | join(', ') }}"
-
 - name: Check if JetBrains Toolbox is already installed
   stat:
     path: ~/.local/share/JetBrains/Toolbox
   register: st_jetbrains_toolbox
 
 - block:
+    - name: Get available releases
+      uri:
+        url: https://data.services.jetbrains.com/products/releases?code=TBA&type=release
+        method: GET
+      register: jetbrains_toolbox_available_releases
+
+    - name: Get versions
+      set_fact:
+        jetbrains_toolbox_versions: "{{ jetbrains_toolbox_available_releases.json.TBA | map(attribute='version') | list }}"
+
+    - name: Check if version is valid
+      assert:
+        that: (jetbrains_toolbox_version | string) in jetbrains_toolbox_versions
+        msg: "The value of jetbrains_toolbox_version ({{ jetbrains_toolbox_version }}) is invalid. Available options are {{ jetbrains_toolbox_versions | join(', ') }}"
+
     - name: Create temporary download directory
       tempfile:
         state: directory
@@ -32,8 +32,10 @@
       get_url:
         url: "{{ jetbrains_toolbox_available_releases.json | json_query(jetbrains_toolbox_download_query) | first }}"
         dest: "{{ jetbrains_toolbox_download_dir.path }}/jetbrains_toolbox.tar.gz"
+        checksum: "sha256:{{ lookup('url', jetbrains_toolbox_available_releases.json | json_query(jetbrains_toolbox_checksum_link) | first) | regex_search('[A-Fa-f0-9]{64}') }}"
       vars:
         jetbrains_toolbox_download_query: "TBA[?version == '{{ jetbrains_toolbox_version }}'].downloads.linux.link"
+        jetbrains_toolbox_checksum_link: "TBA[?version == '{{ jetbrains_toolbox_version }}'].downloads.linux.checksumLink"
 
     - name: Unpack install archive
       unarchive:
