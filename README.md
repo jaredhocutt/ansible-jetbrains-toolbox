@@ -24,5 +24,5 @@ None
   vars:
     jetbrains_toolbox_version: 1.8
   roles:
-      - jaredhocutt.jetbrains_toolbox
+    - jaredhocutt.jetbrains_toolbox
 ```
