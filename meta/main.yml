@@ -13,3 +13,6 @@ galaxy_info:
     versions:
     - 27
     - 28
+  - name: Ubuntu
+    versions:
+    - 18.04
