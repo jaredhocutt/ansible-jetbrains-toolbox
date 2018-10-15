@@ -6,6 +6,10 @@
   register: st_jetbrains_toolbox
 
 - block:
+    - name: Set version from vars as a fact
+      set_fact:
+        jetbrains_toolbox_version: "{{ jetbrains_toolbox_version }}"
+
     - name: Get available releases
       uri:
         url: https://data.services.jetbrains.com/products/releases?code=TBA&type=release
@@ -15,6 +19,11 @@
     - name: Get versions
       set_fact:
         jetbrains_toolbox_versions: "{{ jetbrains_toolbox_available_releases.json.TBA | map(attribute='version') | list }}"
+
+    - name: Update version fact if latest is overridden
+      set_fact:
+        jetbrains_toolbox_version: "{{ jetbrains_toolbox_available_releases.json.TBA | sort(attribute='build', reverse=True) | map(attribute='version') | list | first }}"
+      when: latest
 
     - name: Check if version is valid
       assert:

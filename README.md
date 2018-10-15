@@ -11,6 +11,7 @@ Installs JetBrains Toolbox.
 | Variable                    | Required | Default | Description                                  |
 | --------------------------- | -------- | ------- | -------------------------------------------- |
 | `jetbrains_toolbox_version` | :x:      | `1.8`   | The version of JetBrains Toolbox to install. |
+| `latest`                    | :x:      | `no`    | Set to `yes` to install the latest version.  |
 
 ## Dependencies
 
