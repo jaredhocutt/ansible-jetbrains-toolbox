@@ -23,7 +23,7 @@
     - name: Update version fact if latest is overridden
       set_fact:
         jetbrains_toolbox_version: "{{ jetbrains_toolbox_available_releases.json.TBA | sort(attribute='build', reverse=True) | map(attribute='version') | list | first }}"
-      when: latest
+      when: jetbrains_toolbox_version == 'latest'
 
     - name: Check if version is valid
       assert:
