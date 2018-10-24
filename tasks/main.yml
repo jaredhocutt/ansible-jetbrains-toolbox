@@ -6,10 +6,6 @@
   register: st_jetbrains_toolbox
 
 - block:
-    - name: Set version from vars as a fact
-      set_fact:
-        jetbrains_toolbox_version: "{{ jetbrains_toolbox_version }}"
-
     - name: Get available releases
       uri:
         url: https://data.services.jetbrains.com/products/releases?code=TBA&type=release
