@@ -47,6 +47,7 @@
         src: "{{ jetbrains_toolbox_download_dir.path }}/jetbrains_toolbox.tar.gz"
         dest: "{{ jetbrains_toolbox_download_dir.path }}"
         list_files: yes
+        remote_src: yes
       register: jetbrains_toolbox_unarchive
 
     - name: Install JetBrains Toolbox
